@@ -1,0 +1,106 @@
+{ config, pkgs, inputs, ... }:
+
+{
+  home.username = "floofy";
+  home.homeDirectory = "/home/floofy";
+  home.stateVersion = "25.11";
+
+  programs.bash = {
+    enable = true;
+    shellAliases = {
+      fetch = "fastfetch";
+      yazi = "EDITOR=nvim yazi";
+    };
+  };
+
+  programs.git = {
+    enable = true;
+  };
+
+  programs.kitty = {
+    enable = true;
+    font = {
+      name = "JetBrainsMono Nerd Font";
+      size = 12;
+    };
+    settings = {
+      # Base colors
+      foreground = "#9094a7";
+      background = "#1b1f32";
+      selection_foreground = "#9094a7";
+      selection_background = "#252a41";
+
+      # Cursor
+      cursor = "#289dbd";
+      cursor_text_color = "#1b1f32";
+
+      # URL
+      url_color = "#c3cdfe";
+
+      # Borders / bell
+      active_border_color = "#444b6f";
+      inactive_border_color = "#1b1f32";
+      bell_border_color = "#4961da";
+      visual_bell_color = "none";
+
+      # Titlebar
+      wayland_titlebar_color = "#252a41";
+      macos_titlebar_color = "#252a41";
+
+      # Tabs
+      active_tab_foreground = "#f9fbfb";
+      active_tab_background = "#1b1f32";
+      inactive_tab_foreground = "#a6aeb0";
+      inactive_tab_background = "#252a41";
+      tab_bar_background = "#252a41";
+      tab_bar_margin_color = "none";
+
+      # Marks
+      mark1_foreground = "#1b1f32";
+      mark1_background = "#516aec";
+      mark2_foreground = "#1b1f32";
+      mark2_background = "#818b8d";
+      mark3_foreground = "#1b1f32";
+      mark3_background = "#33abcc";
+
+      # 16 colors
+      color0  = "#1b1f32";
+      color8  = "#51587b";
+
+      color1  = "#627af4";
+      color9  = "#75d5f0";
+
+      color2  = "#99e9ff";
+      color10 = "#444b6f";
+
+      color3  = "#99e9ff";
+      color11 = "#444b6f";
+
+      color4  = "#7289fd";
+      color12 = "#5e6587";
+
+      color5  = "#67c9e4";
+      color13 = "#c3cdfe";
+
+      color6  = "#8b9efd";
+      color14 = "#5cbcd6";
+
+      color7  = "#9094a7";
+      color15 = "#e1e6ff";
+  };
+  };
+
+  home.packages = [
+    inputs.helium.defaultPackage.${pkgs.stdenv.hostPlatform.system}
+    pkgs.vesktop
+    pkgs.spotify
+  ];
+
+  gtk = {
+    enable = true;
+    cursorTheme = {
+      name = "Bibata-Modern-Classic";
+      size = 24;
+    };
+  };
+}
