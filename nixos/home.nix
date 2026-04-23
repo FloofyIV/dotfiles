@@ -1,9 +1,16 @@
 { config, pkgs, inputs, ... }:
 
+let
+  stablepkgs = import inputs.stablepkgs {
+    system = pkgs.system;
+    config.allowUnfree = true;
+  };
+in
+
 {
   home.username = "floofy";
   home.homeDirectory = "/home/floofy";
-  home.stateVersion = "25.11";
+  home.stateVersion = "26.05";
 
   programs.bash = {
     enable = true;
@@ -93,7 +100,7 @@
   home.packages = [
     inputs.helium.defaultPackage.${pkgs.stdenv.hostPlatform.system}
     pkgs.vesktop
-    pkgs.spotify
+    stablepkgs.spotify
   ];
 
   gtk = {
@@ -102,5 +109,11 @@
       name = "Bibata-Modern-Classic";
       size = 24;
     };
+    theme = {
+      name = "Adwaita-dark";
+      package = pkgs.gnome-themes-extra;
+    };
+    gtk3.extraConfig.gtk-application-prefer-dark-theme = 1;
+    gtk4.extraConfig.gtk-application-prefer-dark-theme = 1;
   };
 }
