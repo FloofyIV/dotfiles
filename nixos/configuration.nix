@@ -1,4 +1,4 @@
-{ config, lib, pkgs, inputs, unstable, ... }:
+{ config, lib, pkgs, inputs, ... }:
 
 {
   nixpkgs.config.allowUnfree = true;
@@ -12,11 +12,7 @@
   boot.loader.grub.device = "nodev";
   boot.loader.grub.useOSProber = false;
   boot.loader.efi.canTouchEfiVariables = true;
-  boot.kernelModules = [ "thinkpad_acpi" "coretemp" ];
-
-  boot.extraModprobeConfig = ''
-    options thinkpad_acpi fan_control=1
-  '';
+  boot.kernelModules = [ ];
 
   networking.hostName = "nix";
   networking.networkmanager.enable = true;
@@ -24,33 +20,22 @@
   time.timeZone = "Pacific/Auckland";
 
   hardware.graphics.enable = true;
+  hardware.i2c.enable = true;
   services.xserver.videoDrivers = [ "nvidia" "modesetting" ];
   hardware.nvidia = {
-    open = false;
+    open = true;
     modesetting.enable = true;
     nvidiaSettings = true;
-    powerManagement.enable = true;
-    powerManagement.finegrained = false;
     package = config.boot.kernelPackages.nvidiaPackages.stable;
   };
-  hardware.nvidia.prime = {
-    intelBusId = "PCI:0:2:0";
-    nvidiaBusId = "PCI:1:0:0";
-    offload = {
-      enable = true;
-      enableOffloadCmd = true;
-    };
-  };
   services.displayManager.ly.enable = true;
-  programs.hyprland.enable = true;
+  programs.niri.enable = true;
+  security.polkit.enable = true; # polkit
+  services.gnome.gnome-keyring.enable = true; # secret service
+  security.pam.services.swaylock = {};
   programs.steam = {
     enable = true;
     remotePlay.openFirewall = true;
-  };
-  services.logind.settings.Login = {
-    HandleLidSwitch = "ignore";
-    HandleLidSwitchExternalPower = "ignore";
-    HandleLidSwitchDocked = "ignore";
   };
   hardware.bluetooth.enable = true;
   services.flatpak.enable = true;
@@ -63,39 +48,10 @@
   };
   services.mullvad-vpn = {
 	enable = true;
-	package = unstable.mullvad-vpn;
+	package = pkgs.mullvad-vpn;
   };
   services.power-profiles-daemon.enable = true;
-  services.undervolt = {
-      enable = true;
-      coreOffset = -100;
-  };
   services.upower.enable = true;
-  services.thinkfan = {
-    enable = true;
-
-  # typical ThinkPad fan interface
-    fans = [
-      { type = "tpacpi"; query = "/proc/acpi/ibm/fan"; }
-    ];
-
-    sensors = [
-      { type = "hwmon"; query = "/sys/devices/platform/coretemp.0/hwmon/hwmon1/temp1_input"; }
-    ];   
- 
-
-    levels = [
-      [0 0 45]
-      [1 45 52]
-      [2 50 58]
-      [3 55 63]
-      [4 60 68]
-      [5 65 72]
-      [6 68 73]
-      [7 72 75]
-      ["level full-speed" 75 32767]
-    ];
-  };
   users.users.floofy = {
     isNormalUser = true;
     extraGroups = [ "wheel" ];
@@ -104,15 +60,20 @@
     ];
   };
 
+  nixpkgs.overlays = [
+    (final: prev: {
+      wireplumber = inputs.stablepkgs.legacyPackages.${prev.system}.wireplumber;
+    })
+  ];
+
   environment.systemPackages = with pkgs; [
     neovim
     wget
     git
     fastfetch
-    kdePackages.dolphin
     yazi
     wl-clipboard
-    unstable.btop
+    btop
     ffmpeg
     inxi
     ddcutil
@@ -121,10 +82,9 @@
     go
     mpv
     atuin
-    hyprcursor
     bibata-cursors
     quickshell
-    unstable.noctalia-shell
+    noctalia-shell
     kdePackages.qt5compat
     playerctl
     brightnessctl
@@ -132,13 +92,12 @@
     libsForQt5.qt5.qtbase
     pwvucontrol
     nvtopPackages.nvidia
-    hyprshot
     winetricks
     zenity
     wineWow64Packages.stable
     signal-desktop
     ripgrep
-    powertop
+    xwayland-satellite
   ];
 
   services.openssh.enable = true;
